@@ -17,6 +17,7 @@ from dash import Dash, dcc, html, Input, Output
 ## Import Secrets
 
 def get_api_client():
+    print('Access API Client')
     # read configs
     config = configparser.ConfigParser()
     config.read('config.ini') #read the config file
@@ -37,6 +38,7 @@ def get_api_client():
     return api
 
 def get_latest_tweets(api):
+    print('Connected to API')
     # api  = get_api_client()
     public_tweets = api.home_timeline()
 
@@ -53,8 +55,9 @@ def get_latest_tweets(api):
 
     df = pd.DataFrame(data, columns=columns)
     return df 
-
+ 
 def preprocess_tweets(df):
+    print('preprocess tweets')
     # get_latest_tweets()
     #Change data time 
     df['Day'] = df["TimeStamp"].dt.strftime("%m/%d/%y")
@@ -92,7 +95,7 @@ def getAnalysis(score):
     if score <0:
         return 'Negative'
     elif score == 0:
-        return 'Netural'
+        return 'Netura10 secil'
     else:
         return 'Positive'
        
