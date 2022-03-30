@@ -14,7 +14,7 @@ from textblob import TextBlob
 import datetime as dt
 from dash import Dash, dcc, html, Input, Output
 
-## Import Secrets
+PROFILES = ['FabrizioRomano', 'CFCMod_', 'afcstuff', 'touchlinefracas']
 
 def get_api_client():
     print('Access API Client')
@@ -43,15 +43,16 @@ def get_latest_tweets(api):
     public_tweets = api.home_timeline()
 
     #Extract 100 tweets from the twitter user
-    posts = api.user_timeline(screen_name = 'FabrizioRomano', count=10, lang ='en', tweet_mode='extended')
+    #posts = api.user_timeline(screen_name = 'FabrizioRomano', count=10, lang ='en', tweet_mode='extended')
 
-
-    ## Dataframe
-
+    # Extract multiple usernames
     columns = ['TimeStamp', 'Users','Tweets']
     data = []
-    for tweet in posts:
-        data.append([tweet.created_at, tweet.user.screen_name, tweet.full_text])
+    
+    for user in PROFILES:
+        posts = api.user_timeline(screen_name = user, count=10, lang ='en', tweet_mode='extended')
+        for tweet in posts:
+            data.append([tweet.created_at, tweet.user.screen_name, tweet.full_text])
 
     df = pd.DataFrame(data, columns=columns)
     return df 
@@ -66,13 +67,19 @@ def preprocess_tweets(df):
     #Add the lenth of the tweet
     df['Text Length'] = df.Tweets.str.split().str.len()
 
-    # Subjectivity tells you how opinionated a text is
     # Create two new coloums with sensitivity and polarity 
     df['Subjectivity'] = df['Tweets'].apply(getsubjectivity)
     df['Polarity'] = df['Tweets'].apply(getpolarity)
     df['Analysis'] = df['Polarity'].apply(getAnalysis)
 
     df['Tweets'] = df['Tweets'].apply(cleanText) #Apply function to the tweets 
+
+    teams = {'FabrizioRomano': 'Generic', 
+          'CFCMod_': 'Chelsea', 
+          'afcstuff': 'Arsenal', 
+          'touchlinefracas':'Manchester United'}
+    
+    df['Teams'] = df['User'].map(teams)
 
     return df
 
